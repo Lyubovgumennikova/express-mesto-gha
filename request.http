@@ -1,0 +1,17 @@
+GET http://localhost:3000/
+
+###
+
+POST http://localhost:3000/
+
+{
+    "body": "bar"
+}
+
+###
+
+GET `animals?animal=dog&type=type2`;
+
+###
+
+GET `${PORT}/animals?animal=dog&type=type2`;
