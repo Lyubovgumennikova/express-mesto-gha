@@ -18,6 +18,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
 
 app.use((req, res, next) => {
   req.user = {
