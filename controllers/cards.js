@@ -5,7 +5,7 @@ const Card = require('../models/card');
 // };
 
 module.exports.createCard = (req, res) => {
-  const { name, link } = req.body;
+  const { name, link } = req.body; // , userId
   console.log(req.user._id);
 
   Card.create({ name, link }).then((card) => res.send({ data: card }))
@@ -20,6 +20,7 @@ module.exports.deleteCard = (req, res) => {
 
 module.exports.getCard = (req, res) => {
   Card.find({})
+    .populate('user')
     .then((card) => res.send({ data: card }))
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
