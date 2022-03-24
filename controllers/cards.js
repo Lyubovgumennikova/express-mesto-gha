@@ -2,17 +2,22 @@ const Card = require('../models/card');
 
 const ERROR_CODE = 400;
 
-// module.exports.createCard = (req, res) => {
-//   console.log(req.user._id); // _id станет доступен
-//   res.send({ data: Card });
-// };
-
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body; // , userId
-  console.log(req.user._id);
-
-  Card.create({ name, link, user: req.user._id }) // user:userId
+  Card.create({ name, link, owner: req.user._id }) // user:userId
     .then((card) => res.send({ data: card }))
+    .catch((err) => {
+      if (err.name === 'SomeErrorName') {
+        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
+};
+
+module.exports.getCard = (req, res) => {
+  Card.find({})
+    .populate('owner')
+    .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'SomeErrorName') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
@@ -30,18 +35,6 @@ module.exports.deleteCard = (req, res) => {
           .send({ message: 'Запрашиваемая карточка не найдена' });
       }
       return res.send({ });
-    });
-};
-
-module.exports.getCard = (req, res) => {
-  Card.find({})
-    .populate('user')
-    .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
