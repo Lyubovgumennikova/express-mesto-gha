@@ -16,7 +16,7 @@ module.exports.createCard = (req, res) => {
 
 module.exports.getCard = (req, res) => {
   Card.find({})
-    .populate('owner')
+    // .populate('owner')
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       if (err.name === 'SomeErrorName') {
@@ -27,15 +27,19 @@ module.exports.getCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findByIdAndRemove(req.params.cardId)
+    // .then((card) => {
+    //   res.send({ data: card });
+    // })
     .then((card) => {
       if (!card) {
         return res
           .status(404)
           .send({ message: 'Запрашиваемая карточка не найдена' });
       }
-      return res.send({ });
-    });
+      return res.send({ data: card });
+    })
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
