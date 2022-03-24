@@ -1,8 +1,8 @@
-GET http://localhost:3000/
+GET http://localhost:3000/users
 
 ###
 
-POST http://localhost:3000/
+POST http://localhost:3000/users
 
 {
     "body": "bar"
@@ -10,8 +10,18 @@ POST http://localhost:3000/
 
 ###
 
-GET `animals?animal=dog&type=type2`;
+GET http://localhost:3000/cards;
+
 
 ###
 
-GET `${PORT}/animals?animal=dog&type=type2`;
+POST http://localhost:3000/cards;
+# Content-Type: application/json
+
+{
+  "data": {
+    "name": "ava",
+    "link": "https://pictures.s3.yandex.net/frontend-developer/common/ava.jpg"
+  }
+
+}
