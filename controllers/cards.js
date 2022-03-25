@@ -42,52 +42,38 @@ module.exports.deleteCard = (req, res) => {
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
-module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
-  req.params.cardId,
-  { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-  { new: true },
-  res.send({ data: Card }),
+module.exports.likeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+    req.params.cardId,
+    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { new: true },
 
-  // return res.status(400).send('You have not liked this post');
-  // },
-  // .then((card) => {
-  //   if (!card) {
-  //     return res
-  //       .status(404)
-  //       .send({ message: 'Запрашиваемая карточка не найдена' });
-  //   }
-  //  return res.send({ data: card })
-  // // })
-  // .catch((err) => {
-  //   if (err.name === 'SomeErrorName') {
-  //     return res
-  //       .status(ERROR_CODE)
-  //       .send({ message: 'некорректные данные' });
-  //   }
-  //   return res.status(500).send({ message: 'Произошла ошибка' });
-  // }),
-);
-
-module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
-
-  req.params.cardId,
-  { $pull: { likes: req.user._id } }, // убрать _id из массива
-  { new: true },
-  // tru {
-  //   if (!card) {
-  //     return res
-  //       .status(404)
-  //       .send({ message: 'Запрашиваемая карточка не найдена' });
-  //   }
-  // }
-
-  res.send({ data: Card })
+  ).then((card) => {
+    if (!card) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
+    return res.send({ data: card });
+  })
     .catch((err) => {
       if (err.name === 'SomeErrorName') {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: 'некорректные данные' });
+        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
-    }),
-);
+    });
+};
+
+module.exports.dislikeCard = (req, res) => {
+  Card.findByIdAndUpdate(
+
+    req.params.cardId,
+    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { new: true },
+  ).then((card) => {
+    if (!card) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
+    return res.send({ data: card });
+  })
+    .catch((err) => {
+      if (err.name === 'SomeErrorName') {
+        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
+};

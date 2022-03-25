@@ -1,18 +1,6 @@
 {
   "extends": "airbnb-base",
   "rules": {
-    // "eslint no-underscore-dangle": ["error", { "allowAfterThis": true }]
-    "no-underscore-dangle": ["error", { "allow": [ "_id"] }]
-    // "no-param-reassign": "off"
-    // " eslint no-underscore-dangle": ["error", { "allow": [ "_id"] }]
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }]
   }
 }
-// module.exports = {
-//   extends: 'airbnb-base',
-//   rules: {
-//     // "eslint no-underscore-dangle": ["error", { "allowAfterThis": true }]
-//     'no-underscore-dangle:': ['error', { allow: ['_id'] }],
-//     // "no-param-reassign": "off"
-//     // " eslint no-underscore-dangle": ["error", { "allow": [ "_id"] }]
-//   },
-// };
