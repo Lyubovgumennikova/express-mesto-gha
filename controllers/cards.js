@@ -1,37 +1,93 @@
 const Card = require('../models/card');
 
-// module.exports.createCard = (req, res) => {
-//   console.log(req.user._id); // _id станет доступен
-// };
+const ERROR_CODE = 400;
 
 module.exports.createCard = (req, res) => {
-  const { name, link } = req.body;
-  console.log(req.user._id);
-
-  Card.create({ name, link }).then((card) => res.send({ data: card }))
+  const { name, link } = req.body; // , userId
+  Card.create({ name, link, owner: req.user._id }) // user:userId
     .then((card) => res.send({ data: card }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
-};
-
-module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id).then((card) => res.send({ data: card }));
-  // .catch((err) => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'SomeErrorName') {
+        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.getCard = (req, res) => {
   Card.find({})
-    .then((card) => res.send({ data: card }))
+    // .populate('owner')
+    .then((cards) => res.send({ data: cards }))
+    .catch((err) => {
+      if (err.name === 'SomeErrorName') {
+        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
+};
+
+module.exports.deleteCard = (req, res) => {
+  Card.findByIdAndRemove(req.params.cardId)
+    // .then((card) => {
+    //   res.send({ data: card });
+    // })
+    .then((card) => {
+      if (!card) {
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемая карточка не найдена' });
+      }
+      return res.send({ data: card });
+    })
     .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
-// module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
-//   req.params.cardId,
-//   { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-//   { new: true },
-// );
+module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
+  req.params.cardId,
+  { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+  { new: true },
+  res.send({ data: Card }),
 
-// module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
-//   req.params.cardId,
-//   { $pull: { likes: req.user._id } }, // убрать _id из массива
-//   { new: true },
-// );
+  // return res.status(400).send('You have not liked this post');
+  // },
+  // .then((card) => {
+  //   if (!card) {
+  //     return res
+  //       .status(404)
+  //       .send({ message: 'Запрашиваемая карточка не найдена' });
+  //   }
+  //  return res.send({ data: card })
+  // // })
+  // .catch((err) => {
+  //   if (err.name === 'SomeErrorName') {
+  //     return res
+  //       .status(ERROR_CODE)
+  //       .send({ message: 'некорректные данные' });
+  //   }
+  //   return res.status(500).send({ message: 'Произошла ошибка' });
+  // }),
+);
+
+module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
+
+  req.params.cardId,
+  { $pull: { likes: req.user._id } }, // убрать _id из массива
+  { new: true },
+  // tru {
+  //   if (!card) {
+  //     return res
+  //       .status(404)
+  //       .send({ message: 'Запрашиваемая карточка не найдена' });
+  //   }
+  // }
+
+  res.send({ data: Card })
+    .catch((err) => {
+      if (err.name === 'SomeErrorName') {
+        return res
+          .status(ERROR_CODE)
+          .send({ message: 'некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    }),
+);
