@@ -11,7 +11,7 @@ module.exports.createUser = (req, res) => {
   User.create({ about, avatar, name })
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -24,7 +24,7 @@ module.exports.getUserId = (req, res) => {
     return res.send({ data: user });
   })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -34,12 +34,7 @@ module.exports.getUserId = (req, res) => {
 module.exports.getUser = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-    });
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.updateProfiletUser = (req, res) => {
@@ -48,14 +43,13 @@ module.exports.updateProfiletUser = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true, // обработчик then получит на вход обновлённую запись
     runValidators: true, // данные будут валидированы перед изменением
-    upsert: true, // если пользователь не найден, он будет создан
   })
     .then((user) => {
       if (!user) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
       return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -65,13 +59,13 @@ module.exports.updateProfiletUser = (req, res) => {
 module.exports.updateAvatartUser = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
       return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });

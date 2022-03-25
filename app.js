@@ -30,6 +30,10 @@ app.use((req, res, next) => {
 app.use('/', require('./routes/users'));
 app.use('/', require('./routes/cards'));
 
+app.use((req, res) => {
+  res.status(404).send({ message: 'Запрашиваемый пользователь не найден' });
+});
+
 // 6239aa037aac50a1def3734e
 // app.use(express.static(PUBLIC_FOLDER));
 // app.use(express.static(path.join(__dirname, 'public')));

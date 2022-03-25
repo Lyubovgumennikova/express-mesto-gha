@@ -7,7 +7,7 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner: req.user._id }) // user:userId
     .then((card) => res.send({ data: card }))
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -18,19 +18,11 @@ module.exports.getCard = (req, res) => {
   Card.find({})
     // .populate('owner')
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => {
-      if (err.name === 'SomeErrorName') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-      }
-      return res.status(500).send({ message: 'Произошла ошибка' });
-    });
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    // .then((card) => {
-    //   res.send({ data: card });
-    // })
     .then((card) => {
       if (!card) {
         return res
@@ -39,7 +31,12 @@ module.exports.deleteCard = (req, res) => {
       }
       return res.send({ data: card });
     })
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Невалидный id ' });
+      }
+      res.status(500).send({ message: 'Произошла ошибка' });
+    });
 };
 
 module.exports.likeCard = (req, res) => {
@@ -53,7 +50,7 @@ module.exports.likeCard = (req, res) => {
     return res.send({ data: card });
   })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
@@ -71,7 +68,7 @@ module.exports.dislikeCard = (req, res) => {
     return res.send({ data: card });
   })
     .catch((err) => {
-      if (err.name === 'SomeErrorName') {
+      if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
       return res.status(500).send({ message: 'Произошла ошибка' });
