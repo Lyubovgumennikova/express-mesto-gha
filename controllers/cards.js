@@ -1,6 +1,9 @@
 const Card = require('../models/card');
-
-const ERROR_CODE = 400;
+const {
+  ERROR_CODE,
+  NOT_FOUND,
+  SERVER_ERROR,
+} = require('../error');
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body; // , userId
@@ -10,7 +13,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -18,7 +21,7 @@ module.exports.getCard = (req, res) => {
   Card.find({})
     // .populate('owner')
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res) => {
@@ -26,16 +29,16 @@ module.exports.deleteCard = (req, res) => {
     .then((card) => {
       if (!card) {
         return res
-          .status(404)
+          .status(NOT_FOUND)
           .send({ message: 'Запрашиваемая карточка не найдена' });
       }
       return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Невалидный id ' });
+        res.status(ERROR_CODE).send({ message: 'Невалидный id ' });
       }
-      res.status(500).send({ message: 'Произошла ошибка' });
+      res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -46,14 +49,14 @@ module.exports.likeCard = (req, res) => {
     { new: true },
 
   ).then((card) => {
-    if (!card) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
+    if (!card) { return res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' }); }
     return res.send({ data: card });
   })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -64,13 +67,13 @@ module.exports.dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } }, // убрать _id из массива
     { new: true },
   ).then((card) => {
-    if (!card) { return res.status(404).send({ message: 'Запрашиваемый пользователь не найден' }); }
+    if (!card) { return res.status(NOT_FOUND).send({ message: 'Запрашиваемый пользователь не найден' }); }
     return res.send({ data: card });
   })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
