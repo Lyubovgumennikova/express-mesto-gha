@@ -5,7 +5,9 @@ GET http://localhost:3000/users
 POST http://localhost:3000/users
 
 {
-    "body": "bar"
+    "name": "ff",
+    "about": "ava",
+    "avatar": "https://pictures.s3.yandex.net/frontend-developer/common/ava.jpg"
 }
 
 ###

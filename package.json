@@ -13,7 +13,7 @@
     "url": "git+https://github.com/Lyubovgumennikova/express-mesto-gha.git"
   },
   "keywords": [],
-  "author":  {
+  "author": {
     "name": "Lyubov Gumennikova (33 поток)",
     "email": "lyubovgumennikova@yandex.ru",
     "url": "https://github.com/Lyubovgumennikova/express-mesto-gha.git"
@@ -24,9 +24,11 @@
   },
   "homepage": "https://github.com/Lyubovgumennikova/express-mesto-gha#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.2",
     "express": "^4.17.3",
-    "mongoose": "^6.2.7"
+    "mongoose": "^6.2.7",
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "eslint": "^8.11.0",
