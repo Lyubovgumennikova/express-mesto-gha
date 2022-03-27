@@ -2,13 +2,17 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const ErrorConflict = require('../errors/ErrorConflict');
+const ValidationError = require('../errors/ValidationError');
 
 const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     email, password, about, avatar, name,
   } = req.body;
+  if (!email || !password) {
+    next(new ValidationError('Неправильные почта или пароль'))
+  }
 
   User.findOne({ email })
     .then((user) => {
@@ -36,6 +40,7 @@ module.exports.createUser = (req, res) => {
       avatar,
       name,
     }))
+    .then((user) => User.findOne({ _id: user._id }))
     .then((user) => res.send({
       user,
       // email: user.email,
@@ -45,20 +50,14 @@ module.exports.createUser = (req, res) => {
       // _id: user._id,
       // password: user.password,
     }))
-  // .catch((err) => {
-  //   if (err.name === 'ValidationError') {
-  //     return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-  //   }
-  //   return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-  // })
-    // )
-    .catch((err) => {
-      res.status(400).send({ message: err.message, err });
-    })
+    .catch(next)
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    next(new ValidationError('Неправильные почта или пароль'))
+  }
   User.findOne({ email })
     .then((user) => {
       if (!user) {
