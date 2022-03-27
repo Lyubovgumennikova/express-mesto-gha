@@ -10,9 +10,8 @@ const bodyParser = require('body-parser');
 const {
   createUser,
   login,
-
 } = require('./controllers/users');
-const errorHandler = require('./middewares/errorHandler');
+const errorHandler = require('./middlewares/errorHandler');
 // Слушаем 3000 порт
 const { PORT = 3000 } = process.env;
 
