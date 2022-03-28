@@ -6,6 +6,7 @@ const ErrorConflict = require('../errors/ErrorConflict');
 const ValidationError = require('../errors/ValidationError');
 const Unauthorized = require('../errors/Unauthorized')
 
+const { SALT_ROUNDS, JWT_SECRET } = require('../config/index');
 const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
 
 // const validateCredentials = (req, res, next) => {
@@ -32,7 +33,7 @@ module.exports.createUser = (req, res, next) => {
         throw new ErrorConflict('Пользователь {email} уже зарегестрирован');
       }
 
-      return bcrypt.hash(password, 10);
+      return bcrypt.hash(password, SALT_ROUNDS);
     })
     .then((hash) => User.create({
       email,
@@ -54,7 +55,7 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }, 'password ')
     .then((user) => {
       if (!user) {
-        throw new Unauthorized('Неправильные почта или пароль');
+        throw new Unauthorized('Неправильные почта или парольg');
       }
       // сравниваем переданный пароль и хеш из базы
       return bcrypt.compare(password, user.password);
@@ -64,7 +65,7 @@ module.exports.login = (req, res, next) => {
         // хеши не совпали — отклоняем промис
         throw new Unauthorized('Неправильные почта или пароль');
       }
-      const token = jwt.sign({ email }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ jwt: token })
     })
     .catch(next)
