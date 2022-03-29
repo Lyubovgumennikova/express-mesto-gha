@@ -9,6 +9,7 @@ const Unauthorized = require('../errors/Unauthorized');
 
 const { SALT_ROUNDS, JWT_SECRET } = require('../config/index');
 const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
+// const user = require('../models/user');
 
 module.exports.createUser = (req, res, next) => {
   const {
@@ -30,7 +31,7 @@ module.exports.createUser = (req, res, next) => {
       name,
     }))
     .then((user) => User.findOne({ _id: user._id }))
-    .then((user) => res.send({ user }))
+    .then((user) => res.send({ data: user }))
     .catch(next)
 };
 
@@ -43,23 +44,15 @@ module.exports.login = (req, res, next) => {
         throw new Unauthorized('Неправильные почта или парольg');
       }
       // сравниваем переданный пароль и хеш из базы
-      return bcrypt.compare(password, user.password);
-    })
-    .then((isValid) => {
-      if (!isValid) {
-        // хеши не совпали — отклоняем промис
-        throw new Unauthorized('Неправильные почта или пароль');
-      }
-      const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '7d' });
-      res.send({ jwt: token })
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new Unauthorized('Неправильные почта или пароль');
+          }
+          return user;
+        });
     })
     .then((user) => {
-      // res.send({
-      //   token: jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' }),
-      // });
-      // if (!user) {
-      //   throw new Unauthorized('Неправильные почта или парольg');
-      // }
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ jwt: token })
     })
