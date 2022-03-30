@@ -25,13 +25,13 @@ const register = celebrate({
 const profiletUser = celebrate({
   [Segments.BODY]: Joi.object()
     .keys({
-      name: Joi.string().required().min(2).max(40)
+      name: Joi.string().min(2).max(40)
         .messages({
           'any.required': 'Имя пользователя не указано',
           'string.min': 'Имя пользователя должно быть больше 1-го символа',
           'string.max': 'Имя пользователя не должно быть больше 40-ка символов',
         }),
-      about: Joi.string().required().min(2).max(200)
+      about: Joi.string().min(2).max(200)
         .messages({
           'any.required': 'Увлечение не указано',
           'string.min': 'Описание должно быть больше 1-го символа',

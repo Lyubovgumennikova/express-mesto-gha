@@ -1,16 +1,13 @@
-/* eslint-disable semi */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const ErrorConflict = require('../errors/ErrorConflict');
-// const ValidationError = require('../errors/ValidationError');
+const ValidationError = require('../errors/ValidationError');
 const Unauthorized = require('../errors/Unauthorized');
 const NotFound = require('../errors/NotFound');
-// const validators = require('../middlewares/validations');
+const Forbidden = require('../errors/Forbidden');
 
 const { SALT_ROUNDS, JWT_SECRET } = require('../config/index');
-const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
-// const user = require('../models/user');
 
 module.exports.createUser = (req, res, next) => {
   const {
@@ -31,9 +28,9 @@ module.exports.createUser = (req, res, next) => {
       avatar,
       name,
     }))
-    // .then((user) => User.findOne({ _id: user._id }))
+    .then((user) => User.findOne({ _id: user._id }))
     .then((user) => res.send({ data: user }))
-    .catch(next)
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -55,12 +52,12 @@ module.exports.login = (req, res, next) => {
     })
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-      res.send({ jwt: token })
+      res.send({ jwt: token });
     })
-    .catch(next)
-}
+    .catch(next);
+};
 
-module.exports.getUserMe = (req, res) => {
+module.exports.getUserMe = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail(new NotFound('Запрашиваемый пользователь не найдена'))
     .then((user) => {
@@ -68,9 +65,10 @@ module.exports.getUserMe = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+        next(new Forbidden('Невалидный id '));
+      } else {
+        next(err);
       }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -92,13 +90,13 @@ module.exports.getUserMe = (req, res) => {
 //     });
 // };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
+    .catch(next);
 };
 
-module.exports.updateProfiletUser = (req, res) => {
+module.exports.updateProfiletUser = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -112,21 +110,20 @@ module.exports.updateProfiletUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFound('Запрашиваемый пользователь не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+        next(new ValidationError('некорректные данные'));
+      } else {
+        next(err);
       }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
-module.exports.updateAvatartUser = (req, res) => {
+module.exports.updateAvatartUser = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -136,16 +133,15 @@ module.exports.updateAvatartUser = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFound('Запрашиваемый пользователь не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+        next(new ValidationError('некорректные данные'));
+      } else {
+        next(err);
       }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
