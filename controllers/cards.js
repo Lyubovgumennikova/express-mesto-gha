@@ -1,21 +1,22 @@
 // const bcrypt = require('bcryptjs');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
+const ValidationError = require('../errors/ValidationError');
 
 const Card = require('../models/card');
-const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
+// const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
 
 module.exports.createCard = (req, res, next) => {
-  const { name, link, owner } = req.body; // , userId  , owner
-  Card.create({ name, link, owner }) // user:userId  owner: req.user._id
+  const { name, link, owner } = req.body;
+  Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     // .catch(next);
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+        next(new ValidationError('некорректные данные'));
+      } else {
+        next(err);
       }
-      return next();
-      // return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -24,7 +25,6 @@ module.exports.getCard = (req, res, next) => {
     // .populate('owner')
     .then((cards) => res.send({ data: cards }))
     .catch(next);
-  // .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -37,9 +37,7 @@ module.exports.deleteCard = (req, res, next) => {
         Card.deleteOne(card)
           .then(() => res.send({ data: card }));
       }
-      // next(new Forbidden('Нет прав доступа'))
     })
-    // .catch(next);
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new Forbidden('Невалидный id '));
@@ -79,7 +77,7 @@ module.exports.deleteCard = (req, res, next) => {
 //   // });
 // };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -87,17 +85,16 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFound('Запрашиваемая карточка не найдена');
       }
       return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+        next(new Forbidden('Невалидный id '));
+      } else {
+        next(err);
       }
-      return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -109,17 +106,15 @@ module.exports.dislikeCard = (req, res, next) => {
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
+        throw new NotFound('Запрашиваемая карточка не найдена');
       }
       return res.send({ data: card });
     })
-    .catch(next);
-  // .catch((err) => {
-  //   if (err.name === 'CastError') {
-  //     return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-  //   }
-  //   return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-  // });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new Forbidden('Невалидный id '));
+      } else {
+        next(err);
+      }
+    });
 };

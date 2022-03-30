@@ -60,7 +60,7 @@ module.exports.login = (req, res, next) => {
     .catch(next)
 }
 
-module.exports.getUserId = (req, res) => {
+module.exports.getUserMe = (req, res) => {
   User.findById(req.params.userId)
     .orFail(new NotFound('Запрашиваемый пользователь не найдена'))
     .then((user) => {
@@ -92,7 +92,7 @@ module.exports.getUserId = (req, res) => {
 //     });
 // };
 
-module.exports.getUser = (req, res) => {
+module.exports.getUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ data: user }))
     .catch(() => res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' }));

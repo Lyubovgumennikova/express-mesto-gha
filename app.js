@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(PUBLIC_FOLDER));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/signup', validations.register, createUser); // validators,
+app.post('/signup', validations.register, createUser);
 app.post('/signin', validations.register, login);
 
 app.use('/', auth, require('./routes/users'));
