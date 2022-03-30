@@ -5,6 +5,7 @@ const User = require('../models/user');
 const ErrorConflict = require('../errors/ErrorConflict');
 // const ValidationError = require('../errors/ValidationError');
 const Unauthorized = require('../errors/Unauthorized');
+const NotFound = require('../errors/NotFound');
 // const validators = require('../middlewares/validations');
 
 const { SALT_ROUNDS, JWT_SECRET } = require('../config/index');
@@ -30,7 +31,7 @@ module.exports.createUser = (req, res, next) => {
       avatar,
       name,
     }))
-    .then((user) => User.findOne({ _id: user._id }))
+    // .then((user) => User.findOne({ _id: user._id }))
     .then((user) => res.send({ data: user }))
     .catch(next)
 };
@@ -60,14 +61,10 @@ module.exports.login = (req, res, next) => {
 }
 
 module.exports.getUserId = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
+    .orFail(new NotFound('Запрашиваемый пользователь не найдена'))
     .then((user) => {
-      if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: 'Запрашиваемый пользователь не найден' });
-      }
-      return res.send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -76,6 +73,24 @@ module.exports.getUserId = (req, res) => {
       return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
     });
 };
+
+// module.exports.getUserId = (req, res) => {
+//   User.findById(req.params.userId)
+//     .then((user) => {
+//       if (!user) {
+//         return res
+//           .status(NOT_FOUND)
+//           .send({ message: 'Запрашиваемый пользователь не найден' });
+//       }
+//       return res.send({ data: user });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
+//       }
+//       return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
+//     });
+// };
 
 module.exports.getUser = (req, res) => {
   User.find({})
@@ -88,7 +103,7 @@ module.exports.updateProfiletUser = (req, res) => {
 
   User.findByIdAndUpdate(
     // req.params.id,
-    { _id: req.params.id },
+    req.params.id,
     { name, about },
     {
       new: true, // обработчик then получит на вход обновлённую запись
