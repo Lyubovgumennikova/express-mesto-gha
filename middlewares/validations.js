@@ -96,7 +96,7 @@ const avatar = celebrate({
 });
 
 const index = celebrate({
-  [Segments.BODY]: Joi.object().keys({
+  [Segments.PARAMS]: Joi.object().keys({
     id: Joi.string().length(24).hex().required(),
   }),
 });

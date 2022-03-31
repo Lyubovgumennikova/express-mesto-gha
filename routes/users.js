@@ -2,8 +2,8 @@ const router = require('express').Router();
 const validations = require('../middlewares/validations');
 
 const {
-  getUserId,
   getUsers,
+  getUserId,
   getUserMe,
   updateProfiletUser,
   updateAvatartUser,

@@ -1,4 +1,3 @@
-// const bcrypt = require('bcryptjs');
 const Forbidden = require('../errors/Forbidden');
 const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
@@ -6,10 +5,9 @@ const ValidationError = require('../errors/ValidationError');
 const Card = require('../models/card');
 
 module.exports.createCard = (req, res, next) => {
-  const { name, link, owner } = req.body;
-  Card.create({ name, link, owner })
+  const { name, link } = req.body;
+  Card.create({ name, link, owner: req.user._id })
     .then((card) => res.send({ data: card }))
-    // .catch(next);
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new ValidationError('некорректные данные'));
@@ -21,7 +19,6 @@ module.exports.createCard = (req, res, next) => {
 
 module.exports.getCard = (req, res, next) => {
   Card.find({})
-    // .populate('owner')
     .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
@@ -30,51 +27,21 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(new NotFound('Запрашиваемая карточка не найдена'))
     .then((card) => {
-      if (!card.owner.equals(req.user._id)) { // equals - метод mongoose
+      if (!card.owner.equals(req.user._id)) {
         throw new Forbidden('Нет прав доступа');
       } else {
-        Card.deleteOne(card)
+        return Card.findByIdAndRemove(card)
           .then(() => res.send({ data: card }));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new Forbidden('Невалидный id '));
+        next(new ValidationError('Невалидный id '));
       } else {
         next(err);
       }
     });
 };
-
-// module.exports.deleteCard = (err, req, res, next) => {
-//   Card.findById(req.params.cardId)
-//   // .orFail(new NotFound('Запрашиваемая карточка не найдена'))
-//     .then((card) => {
-//       if (!card) {
-//         throw new NotFound('Запрашиваемая карточка не найдена');
-//       }
-//       if (String(card.owner) === req.user._id) {
-//         Card.findByIdAndRemove(req.params.cardId).then((isValid) => {
-//           if (!isValid) {
-//             throw new Forbidden('Нет прав доступа');
-//           }
-//           res.send({ data: card });
-//         });
-//       }
-
-//       // return next();
-//       // next(new Error('Ошибка авторизации'));
-//       // throw next();
-//       next(err);
-//     })
-//     .catch(next);
-//   // .catch((err) => {
-//   //   if (err.name === 'CastError') {
-//   //     return res.status(ERROR_CODE).send({ message: 'Невалидный id ' });
-//   //   }
-//   //   return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-//   // });
-// };
 
 module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
@@ -90,7 +57,7 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new Forbidden('Невалидный id '));
+        next(new ValidationError('Невалидный id '));
       } else {
         next(err);
       }
@@ -111,7 +78,7 @@ module.exports.dislikeCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new Forbidden('Невалидный id '));
+        next(new ValidationError('Невалидный id '));
       } else {
         next(err);
       }

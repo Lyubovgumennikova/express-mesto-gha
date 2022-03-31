@@ -1,14 +1,9 @@
 const express = require('express');
 
 const app = express();
-// const path = require('path');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-// const PUBLIC_FOLDER = path.join(__dirname, 'public');
-// const routerUser = require('./routes/users');
-// const { errors } = require('celebrate');
-// const { celebrate, Joi, Segments } = require('celebrate');
 const auth = require('./middlewares/auth');
 const { createUser, login } = require('./controllers/users');
 const errorHandler = require('./middlewares/errorHandler');
@@ -23,9 +18,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// app.use(express.static(PUBLIC_FOLDER));
-// app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/signup', validations.register, createUser);
 app.post('/signin', validations.register, login);
