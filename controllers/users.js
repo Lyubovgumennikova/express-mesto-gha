@@ -72,23 +72,20 @@ module.exports.getUserMe = (req, res, next) => {
     });
 };
 
-// module.exports.getUserId = (req, res) => {
-//   User.findById(req.params.userId)
-//     .then((user) => {
-//       if (!user) {
-//         return res
-//           .status(NOT_FOUND)
-//           .send({ message: 'Запрашиваемый пользователь не найден' });
-//       }
-//       return res.send({ data: user });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         return res.status(ERROR_CODE).send({ message: 'некорректные данные' });
-//       }
-//       return res.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
-//     });
-// };
+module.exports.getUserId = (req, res, next) => {
+  User.findById(req.params.id)
+    .orFail(new NotFound('Запрашиваемый пользователь не найден'))
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new ValidationError('некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
+};
 
 module.exports.getUsers = (req, res, next) => {
   User.find({})
