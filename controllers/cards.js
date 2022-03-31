@@ -4,7 +4,6 @@ const NotFound = require('../errors/NotFound');
 const ValidationError = require('../errors/ValidationError');
 
 const Card = require('../models/card');
-// const { ERROR_CODE, NOT_FOUND, SERVER_ERROR } = require('../error');
 
 module.exports.createCard = (req, res, next) => {
   const { name, link, owner } = req.body;
