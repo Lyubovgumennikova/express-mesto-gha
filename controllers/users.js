@@ -58,7 +58,7 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getUserMe = (req, res, next) => {
-  User.findById(req.params.userId)
+  User.findById(req.user._id)
     .orFail(new NotFound('Запрашиваемый пользователь не найдена'))
     .then((user) => {
       res.send({ data: user });
@@ -101,7 +101,7 @@ module.exports.updateProfiletUser = (req, res, next) => {
 
   User.findByIdAndUpdate(
     // req.params.id,
-    req.params.id,
+    req.user._id,
     { name, about },
     {
       new: true, // обработчик then получит на вход обновлённую запись
@@ -127,7 +127,7 @@ module.exports.updateAvatartUser = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
-    req.params.id,
+    req.user._id,
     { avatar },
     { new: true, runValidators: true },
   )
