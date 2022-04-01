@@ -19,17 +19,17 @@ const register = celebrate({
       'any.required': 'Пароль не указан',
       'string.min': 'Пароль должен быть больше 5-ти символов',
     }),
-    name: Joi.string().min(2).max(40)
+    name: Joi.string().min(2).max(30)
       .messages({
         'any.required': 'Имя пользователя не указано',
         'string.min': 'Имя пользователя должно быть больше 1-го символа',
-        'string.max': 'Имя пользователя не должно быть больше 40-ка символов',
+        'string.max': 'Имя пользователя не должно быть больше 30-ти символов',
       }),
-    about: Joi.string().min(2).max(200)
+    about: Joi.string().min(2).max(30)
       .messages({
         'any.required': 'Увлечение не указано',
         'string.min': 'Описание должно быть больше 1-го символа',
-        'string.max': 'Описание не должно быть больше 200-т символов',
+        'string.max': 'Описание не должно быть больше 30-ти символов',
       }),
     avatar: Joi.string()
       .pattern(/(https?:\/\/)(w{3}\.)?(((\d{1,3}\.){3}\d{1,3})|((\w-?)+\.[a-z0-9]{2,3})(:\d{2,5})?((\/.+)+)?#?)/)
@@ -43,17 +43,17 @@ const register = celebrate({
 const profiletUser = celebrate({
   [Segments.BODY]: Joi.object()
     .keys({
-      name: Joi.string().required().min(2).max(40)
+      name: Joi.string().required().min(2).max(30)
         .messages({
           'any.required': 'Имя пользователя не указано',
           'string.min': 'Имя пользователя должно быть больше 1-го символа',
-          'string.max': 'Имя пользователя не должно быть больше 40-ка символов',
+          'string.max': 'Имя пользователя не должно быть больше 30-ти символов',
         }),
-      about: Joi.string().required().min(2).max(200)
+      about: Joi.string().required().min(2).max(30)
         .messages({
           'any.required': 'Увлечение не указано',
           'string.min': 'Описание должно быть больше 1-го символа',
-          'string.max': 'Описание не должно быть больше 200-т символов',
+          'string.max': 'Описание не должно быть больше 30-ти символов',
         }),
     }),
 });
