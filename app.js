@@ -22,8 +22,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/signup', validations.register, createUser);
 app.post('/signin', validations.register, login);
 
-app.use('/', auth, require('./routes/users'));
-app.use('/', auth, require('./routes/cards'));
+app.use(auth);
+
+app.use('/', require('./routes/users'));
+app.use('/', require('./routes/cards'));
 
 app.use((req, res, next) => {
   next(new NotFound('Маршрут не найден'));

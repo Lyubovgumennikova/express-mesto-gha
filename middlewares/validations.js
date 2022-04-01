@@ -55,8 +55,7 @@ const profiletUser = celebrate({
           'string.min': 'Описание должно быть больше 1-го символа',
           'string.max': 'Описание не должно быть больше 200-т символов',
         }),
-    })
-    .unknown(true),
+    }),
 });
 
 const cards = celebrate({
@@ -80,8 +79,7 @@ const cards = celebrate({
           'any.required': 'Ссылка не указана',
           'string.notURL': 'Неправильный формат ссылки',
         }),
-    })
-    .unknown(true),
+    }),
 });
 
 const avatar = celebrate({
@@ -92,7 +90,7 @@ const avatar = celebrate({
         'any.required': 'Ссылка не указана',
         'string.notURL': 'Неправильный формат ссылки',
       }),
-  }).unknown(true),
+  }),
 });
 
 const index = celebrate({
